@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>别踩白块</title>
+	<style type="text/css">
+		#score{
+			font-size: 18px;
+			font-weight: bold;
+			float: right;
+		}
+		.content{
+			width: 400px;
+			margin: 5px auto;
+		}
+		#box{
+			height: 400px;
+			width: 400px;
+			border: 2px solid #ccc;
+			margin: 60px auto;
+			position: relative;
+			overflow: hidden;
+		}
+		#grip{
+			position: absolute;
+			top: -100px;
+			height: 400px;
+		}
+		.row{
+			height: 100px;
+		}
+		.cell{
+			width: 100px;
+			height: 100px;
+			float: left;
+			background-color: #fff;
+		}
+		.black{
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+
+<div id="box">
+	<div id="grip"></div>
+</div>
+<div class="content">
+	<button id="btn">开始</button>
+	<div id="score">0</div>
+</div>
+
+<script type="text/javascript">
+	var time,speed=2;
+	//初始化
+	function init(){
+		for(var i=0;i<4;i++){
+			createRow();
+		}
+		//点击黑块
+		$("box").onclick=function(ev){
+			judge(ev);
+		}
+		//定时器
+		time=setInterval(move,20);
+	}
+
+	
+	
+	//创建div
+	function createDiv(className){
+		var div=document.createElement("div");
+		div.className=className;
+		return div;
+	}
+	function createRow(){
+		var grip=$("grip"),
+			row=createDiv("row"),
+			arr=createCell();
+		grip.appendChild(row);
+		for(var i=0;i<4;i++){
+			row.appendChild(createDiv(arr[i]));
+		}
+		if(grip.firstChild){
+			grip.insertBefore(row,grip.firstChild);
+		}
+		else{
+			grip.appendChild(row);	
+		}
+
+	}
+	function createCell(){
+		var temp=["cell","cell","cell","cell"];
+		var i=Math.floor(Math.random()*4);
+		temp[i]="cell black";
+		return temp;
+	}
+	//根据id来get DOM元素
+	function $(id){
+		return document.getElementById(id);
+	}
+	//向下移动
+	function move(){
+		var grip = $('grip');
+            var top = parseInt(window.getComputedStyle(grip, null)['top']);
+        if(top+speed>0){
+        	top=0;
+        }
+        else{
+        	top+=speed;
+        }
+        grip.style.top=top+"px";
+        if(top==0){
+        	createRow();
+        	grip.style.top="-100px";
+        	delRow();
+        }
+        else if(top==-100+speed){
+        	var rows=grip.childNodes;
+        	if(rows.length==5&&rows[rows.length-1].pass!=1){
+        		fail();
+        	}
+        }
+	}
+	function delRow(){
+		var box=$("box");
+		if(grip.childNodes.length>=6){
+			grip.removeChild(grip.lastChild);
+		}
+	}
+	function fail(){
+		clearInterval(time);
+		alert("game over");
+		
+			window.location.reload();
+		
+	}
+	function judge(ev){
+		if(ev.target.className.indexOf("black")==-1){
+			fail();
+		}
+		else{
+			ev.target.className="cell";
+			// ev.parentNode.target.pass=1;ev.target.parentNode.pass = 1;
+			ev.target.parentNode.pass = 1;
+			score();
+		}
+	}
+	function score(){
+		var score=parseInt($("score").innerHTML)+1;
+		 $("score").innerHTML=score;
+		if(score%10==0){
+			speedUp();
+		}
+	}
+	function speedUp(){
+		speed+=1;
+	}
+
+$("btn").onclick=function(){
+	clearInterval(time);
+	init();
+	$('btn').disabled=true;
+}
+
+
+
+</script>
+</body>
+</html>
